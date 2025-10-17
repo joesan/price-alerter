@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/price-alerter.iml" filepath="$PROJECT_DIR$/.idea/modules/price-alerter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/price-alerter.price-alerter-build.iml" filepath="$PROJECT_DIR$/.idea/modules/price-alerter.price-alerter-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/price-alerter.price-extractor.iml" filepath="$PROJECT_DIR$/.idea/modules/price-alerter.price-extractor.iml" />
+    </modules>
+  </component>
+</project>
