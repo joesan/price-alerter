@@ -20,7 +20,7 @@ object PriceWatcherMain {
     Try {
       val results = config.products.flatMap { entry =>
         println(s"🔍 Fetching: ${entry.shop} -> ${entry.url}")
-        sniffPrice(entry.shop, entry.url).map(elem => elem.copy(isPriceReduced = elem.price < entry.alertBelow))
+        sniffPrice(entry).map(elem => elem.copy(isPriceReduced = elem.price < entry.alertBelow))
       }
       println("\n📊 Price Report:\n")
       printTable(results)

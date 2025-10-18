@@ -59,44 +59,56 @@ object PriceExtractor {
       .headOption
   }
 
-  def extractProductTitle(page: Page): Option[String] = {
-    val selectors = Seq(
-      "h1.product--title", // bike-discount
-      "div.product-detail-information-area__header h1.product-detail-information-area__product-name", // bike24
-      "h1.product-title[itemprop='name']" // r2bike
-      // add more here for other sites
+  def extractProductTitle(page: Page, customSelector: Option[String]): Option[String] = {
+    val fallbackSelectors = Seq(
+      "h1.product--title", // ✅ bike-discount
+      "div.product-detail-information-area__header h1.product-detail-information-area__product-name", // ✅ bike24
+      "h1.product-title[itemprop='name']", // ✅ r2-bike
+      "h1.headline-md[data-test='auto-product-name']", // ✅ bike-components.de
+      "h1.product-title", // 🟡 Generic
+      "h1[itemprop=name]", // 🟡 Schema.org standard
+      "h1.product_name", // 🟡 Some generic themes
+      "h1.page-title", // 🟡 Magento/Shopify-like
+      "h1.title", // 🟡 Generic fallback
+      "h1" // 🟥 Worst-case fallback
     )
 
-    selectors.view
+    val allSelectors = customSelector.toSeq ++ fallbackSelectors
+
+    allSelectors.view
       .flatMap { selector =>
         val locator = page.locator(selector)
         if (locator.count() > 0)
           Some(locator.first().textContent().trim)
-        else None
+        else
+          None
       }
       .headOption
   }
 
-  def extractPriceFromSelectors(page: Page): Option[(BigDecimal, String)] = {
-    val selectors = Seq(
-      "#netz-price", // Specific to Bike-Discount
-      ".price_wrapper .special-price", // R2 Bike
-      ".special-price", // Existing generic special price
-      ".price__value", // Bike-24 specific
-      ".price .d-flex", // Nested span inside price, matches your snippet's inner span
-      ".product-price", // Common in ecommerce
-      ".price--main", // Common in ecommerce
-      ".price-value", // Fallbacks
-      ".price-amount",
-      ".product-price--sale",
-      ".price" // Generic fallback
+  def extractPriceFromSelectors(page: Page, customSelector: Option[String]): Option[(BigDecimal, String)] = {
+    val fallbackSelectors = Seq(
+      "#netz-price", // ✅ Bike-Discount
+      ".price_wrapper .special-price", // ✅ R2-bike
+      ".special-price", // 🟡 Generic
+      ".price__value", // ✅ Bike24
+      ".price .d-flex", // 🟡 Nested layout
+      "div[data-test='auto-product-price']", // ✅ bike-components.de
+      ".product-price", // 🟡 Common in e-commerce
+      ".price--main", // 🟡 Shopify or similar
+      ".price-value", // 🟡 Generic
+      ".price-amount", // 🟡 Fallback
+      ".product-price--sale", // 🟡 Sale-specific
+      ".price" // 🟥 Generic fallback
     )
 
-    selectors.view
+    val allSelectors = customSelector.toSeq ++ fallbackSelectors
+
+    allSelectors.view
       .flatMap { selector =>
         val locator = page.locator(selector)
         if (locator.count() > 0) {
-          val text = locator.first().textContent().trim()
+          val text = locator.first().textContent().trim
           normalizeNumber(text).map(price => (price, s"Selector: $selector"))
         } else None
       }
@@ -113,7 +125,7 @@ object PriceExtractor {
     }.headOption
   }
 
-  def sniffPrice(shop: String, url: String): Option[ProductInfo] = {
+  def sniffPrice(req: ProductRequest): Option[ProductInfo] = {
     val pw = Playwright.create()
     val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
 
@@ -124,16 +136,16 @@ object PriceExtractor {
     )
 
     val page = context.newPage()
-    page.navigate(url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED))
+    page.navigate(req.url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED))
     page.waitForLoadState(LoadState.DOMCONTENTLOADED)
 
     // --- TITLE EXTRACTION ---
     val titleOpt: Option[(String, String)] = extractTitleFromMeta(page)
-      .orElse(extractProductTitle(page).map(t => (t, "Extracted via CSS selector")))
+      .orElse(extractProductTitle(page, Some(req.titleSelector)).map(t => (t, "Extracted via CSS selector")))
 
     // --- PRICE EXTRACTION ---
     val priceOpt = extractPriceFromMeta(page)
-      .orElse(extractPriceFromSelectors(page))
+      .orElse(extractPriceFromSelectors(page, Some(req.priceSelector)))
 
     browser.close()
     pw.close()
@@ -141,6 +153,6 @@ object PriceExtractor {
     for {
       (title, source) <- titleOpt
       (price, source) <- priceOpt
-    } yield ProductInfo(shop, title, price, source)
+    } yield ProductInfo(req.shop, title, price, source)
   }
 }
