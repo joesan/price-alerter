@@ -4,7 +4,6 @@
 [0m[[0m[0mdebug[0m] [0m[0m	PriceExtractor$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$$anon$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo$.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$$anon$2.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest.class[0m
@@ -15,12 +14,10 @@
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceWatcherMain.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceExtractor$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$$anon$1.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo$.tasty[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$$anon$2.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest.tasty[0m
@@ -31,13 +28,11 @@
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package.tasty[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0mWe backup class files:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceWatcherMain.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceExtractor$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$$anon$1.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo$.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$$anon$2.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest.class[0m
@@ -48,12 +43,10 @@
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package.class[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy$.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceWatcherMain.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceExtractor$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$$anon$1.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo$.tasty[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequests$$anon$2.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest.tasty[0m
@@ -64,7 +57,6 @@
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductRequest$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package$ProductInfo.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0m	package.tasty[0m
-[0m[[0m[0mdebug[0m] [0m[0m	Dummy$.tasty[0m
 [0m[[0m[0mdebug[0m] [0m[0mRegistering generated classes:[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceWatcherMain.class[0m
 [0m[[0m[0mdebug[0m] [0m[0m	PriceExtractor$.class[0m

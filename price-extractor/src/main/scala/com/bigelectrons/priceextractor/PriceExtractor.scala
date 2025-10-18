@@ -130,8 +130,8 @@ object PriceExtractor {
     page.waitForLoadState(LoadState.DOMCONTENTLOADED)
 
     // --- TITLE EXTRACTION ---
-    val titleOpt = extractTitleFromMeta(page)
-      .orElse(extractProductTitle(page)) // fallback if meta not found
+    val titleOpt: Option[(String, String)] = extractTitleFromMeta(page)
+      .orElse(extractProductTitle(page).map(t => (t, "Extracted via CSS selector")))
 
     // --- PRICE EXTRACTION ---
     val priceOpt = extractPriceFromMeta(page)
