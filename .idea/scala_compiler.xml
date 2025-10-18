@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ScalaCompilerConfiguration">
-    <profile name="sbt 1" modules="price-alerter,price-alerter.price-extractor,price-alerter_3856" />
-  </component>
-</project>
