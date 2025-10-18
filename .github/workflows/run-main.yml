@@ -16,6 +16,15 @@ jobs:
       - name: 🧾 Checkout source code
         uses: actions/checkout@v4
 
+      # Cache Playwright dependencies to speed up installs
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/build.sbt', '**/project/**/*.scala', '**/src/**/*.scala') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: ☕ Set up Java 21
         uses: actions/setup-java@v4
         with:
