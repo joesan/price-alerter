@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master  # change to 'main' if your default branch is 'main'
+    paths-ignore:
+      - 'README.md'
+      - '**/*.txt'
 
 jobs:
   run-main:
