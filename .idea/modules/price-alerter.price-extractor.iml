@@ -8,6 +8,7 @@
     <output-test url="file://$MODULE_DIR$/../../price-extractor/target/scala-3.3.1/test-classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../price-extractor">
+      <sourceFolder url="file://$MODULE_DIR$/../../price-extractor/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../price-extractor/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../price-extractor/src/test/scala" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../../price-extractor/target" />
@@ -15,11 +16,13 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="sbt: scala-sdk-3.3.1" level="project" />
-    <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3:3.3.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3:3.3.5:jar" level="project" />
     <orderEntry type="library" name="sbt: org.jsoup:jsoup:1.17.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.playframework:play-json_3:3.0.6:jar" level="project" />
     <orderEntry type="library" name="sbt: com.microsoft.playwright:playwright:1.55.0:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.12:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-core_3:0.17.9:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-generic-scala3_3:0.17.9:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.15:jar" level="project" />
     <orderEntry type="library" name="sbt: org.playframework:play-functional_3:3.0.6:jar" level="project" />
     <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-core:2.14.3:jar" level="project" />
     <orderEntry type="library" name="sbt: com.fasterxml.jackson.core:jackson-annotations:2.14.3:jar" level="project" />
@@ -30,6 +33,8 @@
     <orderEntry type="library" name="sbt: org.opentest4j:opentest4j:1.3.0:jar" level="project" />
     <orderEntry type="library" name="sbt: com.microsoft.playwright:driver:1.55.0:jar" level="project" />
     <orderEntry type="library" name="sbt: com.microsoft.playwright:driver-bundle:1.55.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.typesafe:config:1.4.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.github.pureconfig:pureconfig-generic-base_3:0.17.9:jar" level="project" />
     <orderEntry type="library" name="sbt: com.google.errorprone:error_prone_annotations:2.36.0:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.scalatest:scalatest_3:3.2.19:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.scalatest:scalatest-core_3:3.2.19:jar" level="project" />

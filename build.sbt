@@ -32,6 +32,8 @@ lazy val priceExtractor = (project in file("price-extractor"))
       "org.jsoup" % "jsoup" % "1.17.2",
       "org.playframework" %% "play-json" % "3.0.6",
       "com.microsoft.playwright" % "playwright" % "1.55.0",
+      "com.github.pureconfig" %% "pureconfig-core" % "0.17.9",
+      "com.github.pureconfig" %% "pureconfig-generic-scala3" % "0.17.9",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test
     )
   )

@@ -1,136 +1,148 @@
 package com.bigelectrons.priceextractor
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import play.api.libs.json._
-import scala.jdk.CollectionConverters._
-import scala.util.Try
+import com.microsoft.playwright.*
+import com.microsoft.playwright.options.{LoadState, WaitUntilState}
 
-import scala.util.matching.Regex
+import scala.jdk.CollectionConverters.*
 
 
 object PriceExtractor {
 
-  // Common CSS selectors to try
-  val commonPriceSelectors = Seq(
-    ".price", ".product-price", ".price--main", ".price-value",
-    ".current-price", ".price-amount", "#price", ".price-box"
-  )
-
-  // Regex to catch euro / number patterns (very basic)
-  // E.g. matches "€ 1.234,56" or "1.234,56 €" or "EUR 1.234,56"
-  val euroRegex: Regex = """(?i)(?:€|\bEUR\b)?\s*([0-9]{1,3}(?:[.,\s][0-9]{3})*(?:[.,][0-9]{1,2})?)\s*(?:€|\bEUR\b)?""".r
-
-  def normalizeNumber(raw: String): Option[BigDecimal] = {
-    val s0 = raw.trim.replace("\u00A0", "").replace(" ", "")
-    val s = if (s0.contains(",") && s0.contains(".")) {
-      if (s0.lastIndexOf(',') > s0.lastIndexOf('.')) {
-        s0.replace(".", "").replace(",", ".")
-      } else {
-        s0.replace(",", "")
-      }
-    } else if (s0.contains(",")) {
-      s0.replace(".", "").replace(",", ".")
-    } else {
-      s0.replace(",", "")
+  def normalizeNumber(text: String): Option[BigDecimal] = {
+    val cleaned = text.replaceAll("[^0-9,\\.]", "") // Keep digits, commas, dots
+    val normalized = cleaned.replace(',', '.') // Replace comma with dot for decimals
+    try {
+      Some(BigDecimal(normalized))
+    } catch {
+      case _: NumberFormatException => None
     }
-
-    Try(BigDecimal(s)).toOption
   }
 
-  def extractFromLdJson(doc: Document): Seq[(BigDecimal, String)] = {
-    val scripts = doc.select("script[type=application/ld+json]").asScala
-
-    scripts.flatMap { script =>
-      val jsonText = script.html()
-      Try(Json.parse(jsonText)).toOption match {
-        case Some(jsValue) =>
-          val offers = (jsValue \ "offers").toOption
-          offers match {
-            case Some(offerJsValue) =>
-              val prices = offerJsValue match {
-                case JsArray(arr) =>
-                  arr.flatMap { offer =>
-                    (offer \ "price").asOpt[String]
-                  }
-                case JsObject(_) =>
-                  (offerJsValue \ "price").asOpt[String].toSeq
-                case _ => Seq.empty
-              }
-              prices.flatMap(p => normalizeNumber(p).map((_, "ld+json price via Play JSON")))
-            case None => Seq.empty
-          }
-        case None => Seq.empty
-      }
-    }.toSeq
-  }
-
-  def extractFromMeta(doc: Document): Seq[(BigDecimal, String)] = {
+  def extractPriceFromMeta(page: Page): Option[(BigDecimal, String)] = {
     val selectors = Seq(
       ("meta[property=product:price:amount]", "product:price"),
       ("meta[property=og:price:amount]", "og:price"),
-      ("meta[name=price]", "meta price"),
-      ("[itemprop=price]", "itemprop")
+      ("meta[name=price]", "meta name=price"),
+      ("meta[itemprop=price]", "itemprop=price")
     )
 
-    selectors.flatMap { case (selector, hint) =>
-      val el = doc.select(selector).first()
-      if (el != null) {
-        val content = Option(el.attr("content")).filter(_.nonEmpty).getOrElse(el.text())
-        normalizeNumber(content).map((_, s"meta tag $hint"))
-      } else None
-    }
+    selectors.view
+      .flatMap { case (selector, hint) =>
+        val element = page.locator(selector)
+        if (element.count() > 0) {
+          val handle = element.first()
+          val content = Option(handle.getAttribute("content")).filter(_.nonEmpty)
+            .orElse(Some(handle.textContent()).filter(_.nonEmpty))
+
+          content.flatMap(normalizeNumber).map(price => (price, s"Meta tag [$hint]"))
+        } else None
+      }
+      .headOption
   }
 
-  def extractFromCss(doc: Document): Seq[(BigDecimal, String)] = {
-    commonPriceSelectors.flatMap { selector =>
-      val el = doc.select(selector).first()
-      if (el != null) {
-        val text = el.text()
-        normalizeNumber(text).map((_, s"CSS selector $selector"))
-      } else None
-    }
+  def extractTitleFromMeta(page: Page): Option[(String, String)] = {
+    val selectors = Seq(
+      ("meta[name=description]", "meta name=description"),
+      ("meta[property=og:description]", "og:description"),
+      ("meta[name=twitter:description]", "twitter:description"),
+      ("meta[itemprop=description]", "itemprop=description")
+    )
+
+    selectors.view
+      .flatMap { case (selector, source) =>
+        val locator = page.locator(selector)
+        if (locator.count() > 0) {
+          val handle = locator.first()
+          Option(handle.getAttribute("content"))
+            .filter(_.nonEmpty)
+            .map(desc => (desc.trim, s"Meta tag [$source]"))
+        } else None
+      }
+      .headOption
   }
 
-  def extractFromRegex(doc: Document): Seq[(BigDecimal, String)] = {
-    val text = doc.text()
-    euroRegex.findAllMatchIn(text).flatMap { m =>
-      val numStr = m.group(1)
-      normalizeNumber(numStr).map((_, s"regex '${m.matched}'"))
-    }.toSeq
+  def extractProductTitle(page: Page): Option[String] = {
+    val selectors = Seq(
+      "h1.product--title", // bike-discount
+      "div.product-detail-information-area__header h1.product-detail-information-area__product-name", // bike24
+      "h1.product-title[itemprop='name']" // r2bike
+      // add more here for other sites
+    )
+
+    selectors.view
+      .flatMap { selector =>
+        val locator = page.locator(selector)
+        if (locator.count() > 0)
+          Some(locator.first().textContent().trim)
+        else None
+      }
+      .headOption
   }
 
-  def sniffPrice(url: String): Option[(BigDecimal, String)] = {
-    println(s"Fetching $url...")
-    val doc = Jsoup.connect(url)  
-      .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-      .header("Accept‑Language", "en‑US,en;q=0.9")
-      .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-      .referrer("https://www.bike-discount.de/")
-      .timeout(15000).userAgent("Mozilla/5.0")
-      .get()
+  def extractPriceFromSelectors(page: Page): Option[(BigDecimal, String)] = {
+    val selectors = Seq(
+      "#netz-price", // Specific to Bike-Discount
+      ".price_wrapper .special-price", // R2 Bike
+      ".special-price", // Existing generic special price
+      ".price__value", // Bike-24 specific
+      ".price .d-flex", // Nested span inside price, matches your snippet's inner span
+      ".product-price", // Common in ecommerce
+      ".price--main", // Common in ecommerce
+      ".price-value", // Fallbacks
+      ".price-amount",
+      ".product-price--sale",
+      ".price" // Generic fallback
+    )
 
-    val candidates = extractFromLdJson(doc) ++
-      extractFromMeta(doc) ++
-      extractFromCss(doc) ++
-      extractFromRegex(doc)
-
-    candidates.sortBy(-_._1).headOption
+    selectors.view
+      .flatMap { selector =>
+        val locator = page.locator(selector)
+        if (locator.count() > 0) {
+          val text = locator.first().textContent().trim()
+          normalizeNumber(text).map(price => (price, s"Selector: $selector"))
+        } else None
+      }
+      .headOption
   }
 
-  def main(args: Array[String]): Unit = {
-    if (args.length < 1) {
-      println("Usage: PriceSniffer <product_url>")
-      System.exit(1)
-    }
-    val url = args(0)
-    sniffPrice(url) match {
-      case Some((price, hint)) =>
-        println(s"✅ Detected price: €$price (via $hint)")
-      case None =>
-        println("❌ No price detected.")
-    }
+  def extractPriceFromJsonLd(page: Page): Option[(BigDecimal, String)] = {
+    val scripts = page.locator("script[type='application/ld+json']").allTextContents().asScala
+    scripts.flatMap { json =>
+      val pricePattern = """"price"\s*:\s*"?(\\d+[.,]?\d*)"?""".r
+      pricePattern.findFirstMatchIn(json).flatMap { m =>
+        normalizeNumber(m.group(1)).map(price => (price, "JSON-LD"))
+      }
+    }.headOption
+  }
+
+  def sniffPrice(shop: String, url: String): Option[ProductInfo] = {
+    val pw = Playwright.create()
+    val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+
+    val context = browser.newContext(new Browser.NewContextOptions()
+      .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117 Safari/537.36")
+      .setBypassCSP(true)
+      .setLocale("en-US")
+    )
+
+    val page = context.newPage()
+    page.navigate(url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED))
+    page.waitForLoadState(LoadState.DOMCONTENTLOADED)
+
+    // --- TITLE EXTRACTION ---
+    val titleOpt = extractTitleFromMeta(page)
+      .orElse(extractProductTitle(page)) // fallback if meta not found
+
+    // --- PRICE EXTRACTION ---
+    val priceOpt = extractPriceFromMeta(page)
+      .orElse(extractPriceFromSelectors(page))
+
+    browser.close()
+    pw.close()
+
+    for {
+      (title, source) <- titleOpt
+      (price, source) <- priceOpt
+    } yield ProductInfo(shop, title, price, source)
   }
 }
-
-

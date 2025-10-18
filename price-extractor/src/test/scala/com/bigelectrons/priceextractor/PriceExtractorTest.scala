@@ -1,75 +1,39 @@
 package com.bigelectrons.priceextractor
 
-import com.bigelectrons.priceextractor.PriceExtractor.{extractFromRegex, sniffPrice}
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.scalatest.funsuite.AnyFunSuite
-import play.api.libs.json.*
-
-import scala.jdk.CollectionConverters.*
-import scala.util.Try
-import scala.util.matching.Regex
-
 
 final class PriceExtractorTest extends AnyFunSuite {
 
-  test("extract single EUR value with € prefix") {
-    val html = "<p>This item costs €1,234.56</p>"
-    val doc = Jsoup.parse(html)
-    val result = extractFromRegex(doc)
+  val listOfShops: Map[String, String] = Map(
+    "BIKE24" -> "https://www.bike24.com/p2790652.html",
+    "Bike-Discount" -> "https://www.bike-discount.de/en/shimano-grx-rx820/610-1x12-speed-group-disc"
+  )
 
-    assert(result.nonEmpty)
-    assert(result.head._1 == BigDecimal("1234.56"))
-    assert(result.head._2.contains("regex"))
+  test("sniff for price - Bike Discount Shimano GRX RX820/RX610") {
+    PriceExtractor.sniffPrice("Bike Discount", "https://www.bike-discount.de/en/shimano-grx-rx820/610-1x12-speed-group-disc") match {
+      case Some(info) =>
+        println(s"✅ [${info.title}] — €${info.price} (${info.sourceHTMLSelector})")
+        assert(info.price > BigDecimal(0))
+      case None =>
+        fail("❌ Could not extract title or price.")
+    }
   }
 
-  test("extract single EUR value with € suffix") {
-    val html = "<p>This item costs 829.00€</p>"
-    val doc = Jsoup.parse(html)
-    val result = extractFromRegex(doc)
-
-    assert(result.nonEmpty)
-    assert(result.head._1 == BigDecimal("829.00"))
-    assert(result.head._2.contains("regex"))
+  test("sniff for price - Bike-24 Shimano GRX RX610") {
+    PriceExtractor.sniffPrice("Bike24", "https://www.bike24.com/p2790652.html") match {
+      case Some(info) =>
+        println(s"✅ [${info.title}] — €${info.price} (${info.sourceHTMLSelector})")
+        assert(info.price > BigDecimal(0))
+      case None =>
+        fail("❌ Could not extract title or price.")
+    }
   }
 
-  test("extract multiple EUR values with and without EUR/€") {
-    val html =
-      """
-        |<div>
-        |  Price: 1.999,99 EUR
-        |  Another: € 2.345,00
-        |  And again: EUR 3,210.50
-        |</div>
-        |""".stripMargin
-    val doc = Jsoup.parse(html)
-    val result = extractFromRegex(doc)
-
-    assert(result.length == 3)
-    assert(result.map(_._2).forall(_.contains("regex")))
-  }
-
-  test("ignore invalid number formats") {
-    val html = "<span>Cost: €abc</span>"
-    val doc = Jsoup.parse(html)
-    val result = extractFromRegex(doc)
-
-    assert(result.isEmpty)
-  }
-
-  test("handle empty document") {
-    val doc = Jsoup.parse("")
-    val result = extractFromRegex(doc)
-
-    assert(result.isEmpty)
-  }
-
-  // *******************************************************************************************************************
-  // *Sniffer tests*
-  // *******************************************************************************************************************
-
-  test("sniffPriceFromDoc extracts price from HTML") {
-    val result = sniffPrice("https://www.bike-discount.de/en/shimano-grx-rx820/610-1x12-speed-group-disc")
-    println(result)
+  test("sniff for price - BIKE24, Bike-Discount Shimano GRX RX610") {
+    val results = listOfShops.map { entry =>
+      val (shop, url) = entry
+      PriceExtractor.sniffPrice(shop, url) 
+    }
+    printTable(results.flatten.toSeq)
   }
 }

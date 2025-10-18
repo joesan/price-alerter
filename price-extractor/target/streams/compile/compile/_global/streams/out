@@ -1,9 +1,2 @@
-[0m[[0m[31merror[0m] [0m[0m[31m[31m-- [E007] Type Mismatch Error: /Users/joesan/Projects/Private/scala-projects/price-alerter/price-extractor/src/main/scala/com/bigelectrons/priceextractor/PriceExtractor2.scala:57:69 [0m[0m[0m
-[0m[[0m[31merror[0m] [0m[0m[31m57 |[0m    page.navigate(url, Page.NavigateOptions().setWaitUntil(LoadState.DOMCONTENTLOADED))[0m
-[0m[[0m[31merror[0m] [0m[0m[31m[31m   |[0m                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^[0m[0m
-[0m[[0m[31merror[0m] [0m[0m[31m   |[0mFound:    (com.microsoft.playwright.options.LoadState.DOMCONTENTLOADED :[0m
-[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  com.microsoft.playwright.options.LoadState)[0m
-[0m[[0m[31merror[0m] [0m[0m[31m   |[0mRequired: com.microsoft.playwright.options.WaitUntilState[0m
-[0m[[0m[31merror[0m] [0m[0m[31m   |[0m[0m
-[0m[[0m[31merror[0m] [0m[0m[31m   |[0m longer explanation available when compiling with `-explain`[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
+[0m[[0m[33mwarn[0m] [0m[0mthere were 2 deprecation warnings; re-run with -deprecation for details[0m
+[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
