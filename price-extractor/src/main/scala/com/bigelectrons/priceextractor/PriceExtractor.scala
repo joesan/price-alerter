@@ -20,24 +20,22 @@ object PriceExtractor {
 
   def extractPriceFromMeta(page: Page): Option[(BigDecimal, String)] = {
     val selectors = Seq(
-      ("meta[property=product:price:amount]", "product:price"),
-      ("meta[property=og:price:amount]", "og:price"),
-      ("meta[name=price]", "meta name=price"),
-      ("meta[itemprop=price]", "itemprop=price")
+      ("meta[property='product:price:amount']", "product:price"),
+      ("meta[property='og:price:amount']", "og:price"),
+      ("meta[name='price']", "meta name=price"),
+      ("meta[itemprop='price']", "itemprop=price")
     )
 
-    selectors.view
-      .flatMap { case (selector, hint) =>
-        val element = page.locator(selector)
-        if (element.count() > 0) {
-          val handle = element.first()
-          val content = Option(handle.getAttribute("content")).filter(_.nonEmpty)
-            .orElse(Some(handle.textContent()).filter(_.nonEmpty))
+    selectors.view.flatMap { case (selector, hint) =>
+      val locator = page.locator(selector)
+      if (locator.count() > 0) {
+        val handle = locator.first()
+        val content = Option(handle.getAttribute("content")).filter(_.nonEmpty)
+          .orElse(Some(handle.textContent()).filter(_.nonEmpty))
 
-          content.flatMap(normalizeNumber).map(price => (price, s"Meta tag [$hint]"))
-        } else None
-      }
-      .headOption
+        content.flatMap(normalizeNumber).map(price => (price, s"Meta tag [$hint]"))
+      } else None
+    }.headOption
   }
 
   def extractTitleFromMeta(page: Page): Option[(String, String)] = {
