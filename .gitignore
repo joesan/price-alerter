@@ -1,0 +1,22 @@
+*.idea
+*.bsp
+*.log
+logs/*
+
+# Ignore all target directories
+**/target/
+
+# Specifically ignore project/target directories
+**/project/target/
+
+# Ignore any target folders in the sub modules
+*/*/target/*
+*/*/project/target/*
+*/target/*
+*/project/target/*
+target/*
+project/target/*
+project/project/target/*
+
+# The developer configuration file is also not needed
+*application.dev.conf
