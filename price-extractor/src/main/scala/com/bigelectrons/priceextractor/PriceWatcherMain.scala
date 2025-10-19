@@ -2,23 +2,34 @@ package com.bigelectrons.priceextractor
 
 import com.bigelectrons.priceextractor.PriceExtractor._
 
-import scala.util.{Failure, Success, Try}
+import cats.effect.{IO, IOApp}
+import cats.implicits._
 
 
-object PriceWatcherMain {
+object PriceWatcherMain extends IOApp.Simple {
 
-  def main(args: Array[String]): Unit = Try {
-      val results = loadProductRequests.products.flatMap { entry =>
-        println(s"🔍 Fetching: ${entry.shop} -> ${entry.url}")
-        sniffPrice(entry).map(elem => elem.copy(isPriceReduced = elem.price < entry.alertBelow))
-      }
-      println("\n📊 Price Report:\n")
-      printTable(results)
-    } match {
-      case Success(_) => println("\n✅ Price extraction completed successfully.")
-      case Failure(ex) =>
-        ex.printStackTrace()
-        println(s"\n❌ Error during price extraction: ${ex.getMessage}")
+  private def sniffPriceIO(entry: ProductRequest): IO[Option[ProductInfo]] = IO {
+    println(s"🔍 Fetching: ${entry.shop} -> ${entry.url}")
+    sniffPrice(entry).map { product =>
+      product.copy(isPriceReduced = product.price < entry.alertBelow)
     }
+  }
+
+  def run: IO[Unit] = {
+    val startTime = System.currentTimeMillis()
+    val productList = loadProductRequests.products
+
+    for {
+      results <- productList.parTraverse(sniffPriceIO) // run in parallel
+      validResults = results.flatten
+      _ <- IO {
+        println("\n📊 Price Report:\n")
+        printTable(validResults)
+        val duration = (System.currentTimeMillis() - startTime) / 1000.0
+        println(s"\n⏱️  Completed in $duration seconds.")
+        println("\n✅ Price extraction completed successfully.")
+      }
+    } yield ()
+  }
 }
 

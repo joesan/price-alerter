@@ -45,12 +45,17 @@ package object priceextractor {
   }
 
   def printTable(rows: Seq[ProductInfo]): Unit = {
-    val header = f"${"Shop"}%-14s | ${"Title"}%-50s | ${"Price"}%-8s | ${"Source HTML Selector"}"
+    // ANSI formatting codes
+    val BOLD_RED = "\u001b[1m\u001b[31m"
+    val RESET = "\u001b[0m"
+
+    val header = f"${"Shop"}%-14s | ${"Title"}%-50s | ${"Price"}%-10s | ${"Source HTML Selector"}"
     println(header)
     println("-" * header.length)
 
     rows.foreach { row =>
-      println(f"${row.shop}%-14s | ${row.title}%-50s | €${row.price}%-8s | ${row.sourceHTMLSelector}")
+      val coloredPrice = f"$BOLD_RED€${row.price}%-8s$RESET"
+      println(f"${row.shop}%-14s | ${row.title}%-50s | $coloredPrice | ${row.sourceHTMLSelector}")
     }
   }
 }

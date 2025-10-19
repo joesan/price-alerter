@@ -1,2 +1,15 @@
-[0m[[0m[33mwarn[0m] [0m[0mthere was 1 deprecation warning; re-run with -deprecation for details[0m
-[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
+[0m[[0m[31merror[0m] [0m[0m[31m[31m-- [E008] Not Found Error: /Users/joesan/Projects/Private/scala-projects/price-alerter/price-extractor/src/main/scala/com/bigelectrons/priceextractor/PriceWatcherMain.scala:24:29 [0m[0m[0m
+[0m[[0m[31merror[0m] [0m[0m[31m24 |[0m      results <- productList.parTraverseN([31m4[0m)(sniffPriceIO) [34m// only 4 in parallel[0m[0m
+[0m[[0m[31merror[0m] [0m[0m[31m[31m   |[0m                 ^^^^^^^^^^^^^^^^^^^^^^^^[0m[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0mvalue parTraverseN is not a member of Seq[com.bigelectrons.priceextractor.ProductRequest], but could be made available as an extension method.[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0mOne of the following imports might fix the problem:[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  import cats.effect.implicits.concurrentParTraverseOps[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  import cats.effect.kernel.implicits.concurrentParTraverseOps[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  import cats.effect.kernel.syntax.all.concurrentParTraverseOps[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  import cats.effect.kernel.syntax.concurrent.concurrentParTraverseOps[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  import cats.effect.syntax.all.concurrentParTraverseOps[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m  import cats.effect.syntax.concurrent.concurrentParTraverseOps[0m
+[0m[[0m[31merror[0m] [0m[0m[31m   |[0m[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

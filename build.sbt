@@ -33,6 +33,7 @@ lazy val priceExtractor = (project in file("price-extractor"))
       "org.playframework" %% "play-json" % "3.0.6",
       "com.microsoft.playwright" % "playwright" % "1.55.0",
       "com.github.pureconfig" %% "pureconfig-core" % "0.17.9",
+      "org.typelevel" %% "cats-effect" % "3.5.2",
       "com.github.pureconfig" %% "pureconfig-generic-scala3" % "0.17.9",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test
     )
