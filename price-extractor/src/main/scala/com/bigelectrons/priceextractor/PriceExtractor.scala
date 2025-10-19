@@ -2,6 +2,8 @@ package com.bigelectrons.priceextractor
 
 import com.microsoft.playwright.*
 import com.microsoft.playwright.options.{LoadState, WaitUntilState}
+import cats.effect.{IO, Resource}
+import cats.implicits._
 
 import scala.jdk.CollectionConverters.*
 
@@ -123,30 +125,6 @@ object PriceExtractor {
         normalizeNumber(m.group(1)).map(price => (price, "JSON-LD"))
       }
     }.headOption
-  }
-
-  def sniffPriceWithContext(context: BrowserContext, req: ProductRequest): Option[ProductInfo] = {
-    val page = context.newPage()
-    try {
-      page.navigate(req.url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED))
-      page.waitForLoadState(LoadState.DOMCONTENTLOADED)
-
-      // --- TITLE EXTRACTION ---
-      val titleOpt: Option[(String, String)] = extractTitleFromMeta(page)
-        .orElse(extractProductTitle(page, Some(req.titleSelector)).map(t => (t, "Extracted via CSS selector")))
-
-      // --- PRICE EXTRACTION ---
-      val priceOpt = extractPriceFromMeta(page)
-        .orElse(extractPriceFromSelectors(page, Some(req.priceSelector)))
-
-      for {
-        (title, sourceTitle) <- titleOpt
-        (price, sourcePrice) <- priceOpt
-      } yield ProductInfo(req.shop, title, price, sourcePrice)
-    } finally {
-      println(s"Closing page for ${req.shop}")
-      page.close()
-    }
   }
 
   def sniffPrice(req: ProductRequest): Option[ProductInfo] = {

@@ -32,4 +32,3 @@ object PriceWatcherMain extends IOApp.Simple {
     } yield ()
   }
 }
-
