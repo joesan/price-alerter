@@ -2,9 +2,6 @@ package com.bigelectrons.priceextractor
 
 import com.microsoft.playwright.*
 import com.microsoft.playwright.options.{LoadState, WaitUntilState}
-import cats.effect.{IO, Resource}
-import cats.implicits._
-
 import scala.jdk.CollectionConverters.*
 
 
@@ -155,6 +152,6 @@ object PriceExtractor {
     for {
       (title, source) <- titleOpt
       (price, source) <- priceOpt
-    } yield ProductInfo(req.shop, title, price, source)
+    } yield ProductInfo(req.shop, title, req.componentType, price, source)
   }
 }
