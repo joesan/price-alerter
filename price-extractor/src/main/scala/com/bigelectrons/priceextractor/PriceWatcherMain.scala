@@ -49,7 +49,8 @@ object PriceWatcherMain extends IOApp.Simple {
     ranked.take(topN).zipWithIndex.foreach { case ((combo, total), idx) =>
       println(s"\n🏅 Build #${idx + 1} - Total Price: €${Console.BOLD}${Console.RED}$total${Console.RESET}")
       combo.foreach { p =>
-        println(f"- ${p.shop}%-14s | ${p.componentType}%-10s: ${p.title}%-50s (€${p.price})")
+        val coloredPrice = s"${Console.BOLD}${Console.RED}€${p.price}${Console.RESET}"
+        println(f"- ${p.shop}%-14s | ${p.componentType}%-10s | $coloredPrice | ${p.url}")
       }
     }
   }

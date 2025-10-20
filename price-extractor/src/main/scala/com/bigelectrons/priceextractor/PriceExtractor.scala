@@ -152,6 +152,6 @@ object PriceExtractor {
     for {
       (title, source) <- titleOpt
       (price, source) <- priceOpt
-    } yield ProductInfo(req.shop, title, req.componentType, price, source)
+    } yield ProductInfo(req.shop, req.url, title, req.componentType, price, source)
   }
 }

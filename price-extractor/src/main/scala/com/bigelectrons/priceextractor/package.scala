@@ -30,7 +30,7 @@ package object priceextractor {
   }
 
   // Output case class
-  case class ProductInfo(shop: String, title: String, componentType: ComponentType, price: BigDecimal, sourceHTMLSelector: String, isPriceReduced: Boolean = false)
+  case class ProductInfo(shop: String, url: String, title: String, componentType: ComponentType, price: BigDecimal, sourceHTMLSelector: String, isPriceReduced: Boolean = false)
 
   // Input case classes
   case class ProductRequest(shop: String, url: String, componentType: ComponentType, titleSelector: String, priceSelector: String, alertBelow: BigDecimal) derives ConfigReader

@@ -1,4 +1,4 @@
-name: Run PriceWatcherMain For Shimano GRX Groupsets
+name: Run PriceWatcher For Price Updates
 
 on:
   push:
