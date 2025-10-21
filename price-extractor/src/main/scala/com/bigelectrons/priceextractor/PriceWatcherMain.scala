@@ -1,9 +1,9 @@
 package com.bigelectrons.priceextractor
 
-import com.bigelectrons.priceextractor.PriceExtractor._
-
+import cats.effect.std.Semaphore
+import com.bigelectrons.priceextractor.PriceExtractor.*
 import cats.effect.{IO, IOApp}
-import cats.implicits._
+import cats.implicits.*
 
 
 object PriceWatcherMain extends IOApp.Simple {
@@ -56,18 +56,29 @@ object PriceWatcherMain extends IOApp.Simple {
   }
 
   def run: IO[Unit] = {
-    val startTime = System.currentTimeMillis()
     val productList = loadProductRequests.products
+    val parallelism = 4
 
     for {
-      results <- productList.parTraverse(sniffPriceIO) // run in parallel
+      startTime <- IO(System.currentTimeMillis())
+
+      // ✅ Create a semaphore instance with 4 permits
+      semaphore <- Semaphore[IO](parallelism)
+
+      // ✅ Use `semaphore.permit` on the instance, not the object
+      results <- productList.parTraverse { req =>
+        semaphore.permit.use(_ => sniffPriceIO(req))
+      }
+
       validResults = results.flatten
+
       _ <- IO {
         println("\n📊 Price Report:\n")
         printTable(validResults)
+
         val duration = (System.currentTimeMillis() - startTime) / 1000.0
-        println(s"\n⏱️  Price extraction Completed in $duration seconds.")
-        // Print top build combos (cheapest combinations)
+        println(s"\n⏱️  Price extraction completed in $duration seconds.")
+
         printTopBuildCombos(validResults, topN = 3)
       }
     } yield ()
