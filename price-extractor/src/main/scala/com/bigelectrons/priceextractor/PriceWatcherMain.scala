@@ -18,39 +18,30 @@ object PriceWatcherMain extends IOApp.Simple {
   def printTopBuildCombos(products: Seq[ProductInfo], topN: Int = 5): Unit = {
     println("\n🔧 Top Component Builds:\n")
 
-    val groupedByType: Map[ComponentType, Seq[ProductInfo]] = products.groupBy(_.componentType)
+    // Group and sort each component type by price ascending
+    val groupedByType: Map[ComponentType, Seq[ProductInfo]] =
+      products.groupBy(_.componentType).view.mapValues(_.sortBy(_.price)).toMap
 
-    val cheapestByType: Map[ComponentType, ProductInfo] = groupedByType.collect {
-      case (ctype, items) if items.nonEmpty =>
-        ctype -> items.minBy(_.price)
+    // Find the maximum number of builds possible (based on the type with the most items)
+    val maxBuildCount = groupedByType.values.map(_.size).maxOption.getOrElse(0)
+    if (maxBuildCount == 0) {
+      println("❌ No components available to generate builds.")
+      return
     }
 
-    // For ranking, we need all possible combinations (Cartesian product)
-    val groupedLists: List[List[ProductInfo]] = ComponentType.allComponentTypes.map { ctype =>
-      groupedByType.getOrElse(ctype, Seq.empty).sortBy(_.price).take(3).toList
+    // Construct builds index-wise (0th = cheapest of each type, etc.)
+    val builds: Seq[(Seq[ProductInfo], BigDecimal)] = (0 until maxBuildCount).map { idx =>
+      val combo = groupedByType.values.flatMap(_.lift(idx)).toSeq
+      val totalPrice: BigDecimal = combo.map(_.price).sum
+      (combo, totalPrice)
     }
 
-    val allCombos: List[List[ProductInfo]] = groupedLists match {
-      case List(a, b, c) =>
-        for {
-          x <- a
-          y <- b
-          z <- c
-        } yield List(x, y, z)
-      case _ =>
-        println("❌ Not enough components to generate build combos.")
-        Nil
-    }
-
-    val ranked = allCombos.map { combo =>
-      (combo, combo.map(_.price).sum)
-    }.sortBy(_._2)
-
-    ranked.take(topN).zipWithIndex.foreach { case ((combo, total), idx) =>
+    // Limit output to topN builds (in order of index, not total price)
+    builds.take(topN).zipWithIndex.foreach { case ((combo, total), idx) =>
       println(s"\n🏅 Build #${idx + 1} - Total Price: €${Console.BOLD}${Console.RED}$total${Console.RESET}")
       combo.foreach { p =>
         val coloredPrice = s"${Console.BOLD}${Console.RED}€${p.price}${Console.RESET}"
-        println(f"- ${p.shop}%-14s | ${p.componentType}%-10s | $coloredPrice | ${p.url}")
+        println(f"- ${p.shop}%-14s | ${p.componentType}%-12s | $coloredPrice | ${p.url}")
       }
     }
   }
