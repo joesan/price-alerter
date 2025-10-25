@@ -14,6 +14,7 @@ package object priceextractor {
     case object GroupSet extends ComponentType
     case object WheelSet extends ComponentType
     case object HandleBar extends ComponentType
+    case object BrakeRotor extends ComponentType
 
     val allComponentTypes: List[ComponentType] =
       List(GroupSet, WheelSet, HandleBar)
@@ -22,6 +23,7 @@ package object priceextractor {
       case "wheelset" => Right(WheelSet)
       case "groupset" => Right(GroupSet)
       case "handlebar" => Right(HandleBar)
+      case "brakerotor" => Right(BrakeRotor)
       case other => Left(CannotConvert(other, "ComponentType", s"Unrecognized component type: $other"))
     }
 
